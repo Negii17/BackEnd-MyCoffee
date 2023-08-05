@@ -43,6 +43,7 @@ exports.register = async (req, res) => {
       email: dataInput.email,
       fullname: dataInput.fullName,
       password: await bcrypt.hash(dataInput.password, 10),
+      level: "costumer",
     });
     if (!insertToDataBase) {
       return res.status(400).send({
