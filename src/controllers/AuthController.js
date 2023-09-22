@@ -11,6 +11,7 @@ exports.register = async (req, res) => {
     // validasi input
     const validationInput = joi.object({
       email: joi.string().required().min(5).email(),
+      userName: joi.string().required().min(5),
       fullName: joi.string().required().min(3),
       password: joi.string().required().min(3),
     });
@@ -40,6 +41,7 @@ exports.register = async (req, res) => {
     // insert to database
     const insertToDataBase = await UserModel.create({
       id: uuidv4(),
+      username: dataInput.userName,
       email: dataInput.email,
       fullname: dataInput.fullName,
       password: await bcrypt.hash(dataInput.password, 10),
@@ -54,7 +56,7 @@ exports.register = async (req, res) => {
     // end insert to database
 
     return res.send({
-      status: "succes",
+      status: "success",
       message: `Register succes`,
       data: dataInput,
     });
@@ -67,6 +69,7 @@ exports.register = async (req, res) => {
   }
 };
 
+// Login
 exports.login = async (req, res) => {
   try {
     const dataInput = req.body;
@@ -92,13 +95,13 @@ exports.login = async (req, res) => {
         email: dataInput.email,
       },
     });
+
     if (userByEmail === false) {
-      return res.status(500).send({
+      return res.status(400).send({
         status: "fail",
         message: "Email or password fail",
       });
     }
-    // End Check Email Already
 
     // compare password
     const compare = await bcrypt.compare(
@@ -106,7 +109,7 @@ exports.login = async (req, res) => {
       userByEmail.password
     );
     if (compare === false) {
-      return res.status(500).send({
+      return res.status(400).send({
         status: "fail",
         message: "Email or password fail",
       });
@@ -126,8 +129,10 @@ exports.login = async (req, res) => {
       status: "succes",
       message: "Login succes",
       data: {
+        username: userByEmail.username,
         email: userByEmail.email,
         fullname: userByEmail.fullname,
+        level: userByEmail.level,
       },
       token,
     });
@@ -135,7 +140,7 @@ exports.login = async (req, res) => {
     console.log(error);
     return res.status(500).send({
       status: "fail",
-      message: "Email or password fail",
+      message: "error catch",
     });
   }
 };
