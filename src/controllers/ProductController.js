@@ -5,6 +5,15 @@ exports.addDataProduct = async (req, res) => {
   try {
     const dataInput = req.body;
 
+    //chechk image filter
+    if (req.validationFileError) {
+      return res.status(400).send({
+        status: "fail",
+        message: req.validationFileError,
+      });
+    }
+    //end chechk image filter
+
     // validasi imput
     const validationInput = joi.object({
       id: joi.string().required(),
@@ -30,7 +39,7 @@ exports.addDataProduct = async (req, res) => {
     if (productById) {
       return res.status(400).send({
         status: "fail",
-        message: `product ${dataInput.id} already exist`,
+        message: `product with ${dataInput.id} already exist`,
       });
     }
 
@@ -53,6 +62,7 @@ exports.addDataProduct = async (req, res) => {
       productName: dataInput.productName,
       price: dataInput.price,
       stocks: dataInput.stocks,
+      img: req.file.originalname,
     });
     if (!insertToDataBase) {
       return res.status(400).send({
@@ -238,5 +248,13 @@ exports.deleteDataProduct = async (req, res) => {
       status: "fail",
       message: "Error Catch",
     });
+  }
+};
+
+exports.cekFile = async (req, res) => {
+  try {
+    console.log(req.file);
+  } catch (error) {
+    console.log(error);
   }
 };

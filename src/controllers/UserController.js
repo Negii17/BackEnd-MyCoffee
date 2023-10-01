@@ -111,7 +111,6 @@ exports.updatePasswordUser = async (req, res) => {
     // validasi input
     const validationInput = joi.object({
       password: joi.string().min(3),
-      newPassword: joi.string().min(3),
     });
     const validationError = validationInput.validate(dataInputUpdate).error;
     if (validationError) {
@@ -137,19 +136,6 @@ exports.updatePasswordUser = async (req, res) => {
         message: `Data dengan Id: ${idParam} tidak ditemukan`,
       });
     }
-
-    // compare password
-    const compare = await bcrypt.compare(
-      dataInputUpdate.password,
-      dataUserById.password
-    );
-    if (compare === false) {
-      return res.status(400).send({
-        status: "fail",
-        message: "Email or password fail",
-      });
-    }
-    // End compare password
 
     const updateData = await UserModel.update(
       {

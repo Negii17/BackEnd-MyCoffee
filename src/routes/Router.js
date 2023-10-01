@@ -17,6 +17,7 @@ const {
   getDataProductById,
   updateDataProduct,
   deleteDataProduct,
+  cekFile,
 } = require("../controllers/ProductController");
 // End Product
 
@@ -33,25 +34,64 @@ const {
   updatePasswordUser,
 } = require("../controllers/UserController");
 
-const { getDataCart, addDataCart } = require("../controllers/CartController");
+const {
+  getDataCart,
+  addDataCart,
+  // reduceQtyDataCart,
+  deleteDataCart,
+  reduceQtyProduct,
+} = require("../controllers/CartController");
 
-router.post("/adddataproduct", addDataProduct);
+router.post(
+  "/adddataproduct",
+  middleware,
+  middlewareWithLevel(["owner"]),
+  upload.single("img"),
+  addDataProduct
+);
+// router.post("/adddataproduct-upload", upload.single("product"));
+// router.post("/adddataproduct-upload", upload.single("product"), (req, res) => {
+//   return res.send({
+//     Response: "success",
+//     message: "Upload Success",
+//   });
+// });
+// router.post("/cekfile", upload.single("img"), cekFile);
 router.get("/getdataproducts", getDataProducts);
-router.get("/getdataproductbyid/:idparam", getDataProductById);
-router.patch("/updatedataproduct/:idparam", updateDataProduct);
-router.delete("/deletedataproduct/:idparam", deleteDataProduct);
+router.get(
+  "/getdataproductbyid/:idparam",
+  middleware,
+  middlewareWithLevel(["owner"]),
+  getDataProductById
+);
+router.patch(
+  "/updatedataproduct/:idparam",
+  middleware,
+  middlewareWithLevel(["owner"]),
+  updateDataProduct
+);
+router.delete(
+  "/deletedataproduct/:idparam",
+  middleware,
+  middlewareWithLevel(["owner"]),
+  deleteDataProduct
+);
 
-router.get("/getdatacart", getDataCart);
+router.get("/getdatacart", middleware, getDataCart);
 router.post("/adddatacart", middleware, addDataCart);
+router.post("/reduceqtyproduct", middleware, reduceQtyProduct);
+// router.patch("/reduceqtycart/:idparam", middleware, reduceQtyDataCart);
+router.delete("/deletecart/:idparam", middleware, deleteDataCart);
 
 router.post("/register", register);
 router.post("/login", login);
-router.patch("/updatedatauser/:idparam", updateDataUser);
-router.patch("/updatepassworduser/:idparam", updatePasswordUser);
+router.patch("/updatedatauser/:idparam", middleware, updateDataUser);
+router.patch("/updatepassworduser/:idparam", middleware, updatePasswordUser);
 router.get("/getuserbyid", middleware, getUsersById);
+router.post("/avatar-upload", upload.single("avatar"));
 
 router.get("/checktoken", middleware, checktoken);
-router.get("/users", middleware, getUsers);
+router.get("/users", middleware, middlewareWithLevel(["owner"]), getUsers);
 router.get(
   "/users-withlevel",
   middleware,
